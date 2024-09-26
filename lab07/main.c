@@ -15,6 +15,7 @@ void listFree(node* aux);
 node* insertNode(node* head, int p, double x);
 node* removeNode(node* head, int p);
 node* moveList(node* head, int i, int t, int p);
+node* reverseList(node* head, int i, int t);
 
 int main(void) {
   char cmd[15];
@@ -55,15 +56,13 @@ int main(void) {
     /* Reverter os elementos do trecho i até t da lista inclusive, se estiver fora do alcance não faz nada */
     else if (strcmp(cmd,"v") == 0) {
       scanf("%d %d",&i,&t);
-      //reverseList(head, i, t);
-      printf("v %d %d\n", i, t);
+      head = reverseList(head, i, t);
     }
 
     /* Mover o trecho de i até t para a posição p */
     else if (strcmp(cmd,"x") == 0) {
       scanf("%d %d %d",&i,&t, &p);
-      aux = moveList(head, i, t, p);
-      head = (aux != NULL) ? aux: head;
+      head = moveList(head, i, t, p);
     }
     
     /* Terminar o programa e liberar a memória */
@@ -72,6 +71,90 @@ int main(void) {
       break;
     }
   }
+  return 0;
+}
+
+
+node* reverseList(node* head, int i, int t){
+  int count = 0;
+  node* aux = head;
+  while(1){
+    if(aux == NULL)
+      break;
+    count++;
+    aux = aux->next;
+  }
+  
+  if(t > count-1 || i > count-1 || i > t){
+    return head;
+  }
+  if(count == 1)
+    return head;
+  
+  aux = head;
+  node* aux1 = aux->next;
+  
+  if(count == 2){
+    if(i == 0 && t == 1){
+      aux1->next = aux;
+      head = aux1;
+      aux->next == NULL;
+    }
+    return head;
+  }
+
+  node* aux2 = aux1->next;
+
+  count = 0;
+
+  node* p_i_minus_1 = NULL;
+  node* p_i = NULL;
+  node* p_t_plus_1 = NULL;
+  node* p_t = NULL;
+
+  while(1){
+    if(count == i-1){
+      p_i_minus_1 = aux;
+      printf("i-1: %.2lf\n", p_i_minus_1->data);
+    }
+    else if(count == i){
+      p_i = aux;
+      printf("i: %.2lf\n", p_i->data);
+    }
+    if(count == t){
+      p_t = aux;
+      printf("t: %.2lf\n", p_t->data);
+    }
+    else if(count == t+1){
+      p_t_plus_1 = aux;
+      printf("t+1: %.2lf\n", p_t_plus_1->data);
+    }
+
+    if(count >= i && count < t){
+      aux1->next = aux;
+    }
+    aux = aux1;
+    aux1 = aux2;
+
+    if(aux2 == NULL){
+      if(aux1 == NULL){
+        if(aux == NULL)
+          break;
+      }
+    }
+    else
+      aux2 = aux2->next;
+    
+    count++; 
+  }
+  if(i == 0){
+    head = p_t;
+  }
+  else{
+    p_i_minus_1->next = p_t;
+  }
+  p_i->next = p_t_plus_1;
+  return head;
 }
 
 
@@ -85,7 +168,7 @@ node* moveList(node* head, int i, int t, int p){
   node* p_t = NULL;
   int count = 0;
 
-  if(i > t)
+  if(i > t || head == NULL)
     return head;
 
   while(1){
@@ -110,6 +193,7 @@ node* moveList(node* head, int i, int t, int p){
       printf("t: %lf\n", aux->data);
     }
     else if(count == t+1){
+    printf("nada");
       p_t_plus_1 = aux;
       printf("t+1: %lf\n", aux->data);
     }
@@ -124,7 +208,7 @@ node* moveList(node* head, int i, int t, int p){
   (p_p_minus_1 == NULL && p > 0) || (p_t == NULL) || count < p || count < t || count < i)
     return head;
   if(i == 0){
-    head = p_i;
+    head = p_t_plus_1;
   }
   else if(i-1 == 0){
     head = p_t_plus_1;
@@ -224,7 +308,6 @@ node* insertNode(node* head, int p, double x){
 
 void listFree(node* aux){
   if(aux == NULL){
-    printf("nada");
     return;
   }
   node* aux1 = aux->next;
