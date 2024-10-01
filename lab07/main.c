@@ -21,8 +21,7 @@ int main(void) {
   char cmd[15];
   double x;
   int i, p, t;
-  node* head;
-  node* aux;
+  node* head = NULL;
 
   while (1) {
     /* Criar uma lista encadeada */
@@ -37,15 +36,13 @@ int main(void) {
     /* Inserir x na posição p da lista*/
     else if (strcmp(cmd,"i") == 0) {
       scanf("%d %lf",&p,&x);
-      aux = insertNode(head, p, x);
-      head = (aux != NULL) ? aux: head;
+      head = insertNode(head, p, x);
     }
 
     /* Remover o nó na posição p */
     else if (strcmp(cmd,"r") == 0) {
       scanf("%d", &p);
-      aux = removeNode(head, p);
-      head = (aux != NULL) ? aux: head;
+      head = removeNode(head, p);
     }
 
     /* Imprimir a lista */
@@ -98,7 +95,7 @@ node* reverseList(node* head, int i, int t){
     if(i == 0 && t == 1){
       aux1->next = aux;
       head = aux1;
-      aux->next == NULL;
+      aux->next = NULL;
     }
     return head;
   }
@@ -115,19 +112,19 @@ node* reverseList(node* head, int i, int t){
   while(1){
     if(count == i-1){
       p_i_minus_1 = aux;
-      printf("i-1: %.2lf\n", p_i_minus_1->data);
+      //printf("i-1: %.2lf\n", p_i_minus_1->data);
     }
     else if(count == i){
       p_i = aux;
-      printf("i: %.2lf\n", p_i->data);
+      //printf("i: %.2lf\n", p_i->data);
     }
     if(count == t){
       p_t = aux;
-      printf("t: %.2lf\n", p_t->data);
+      //printf("t: %.2lf\n", p_t->data);
     }
     else if(count == t+1){
       p_t_plus_1 = aux;
-      printf("t+1: %.2lf\n", p_t_plus_1->data);
+      //printf("t+1: %.2lf\n", p_t_plus_1->data);
     }
 
     if(count >= i && count < t){
@@ -168,55 +165,63 @@ node* moveList(node* head, int i, int t, int p){
   node* p_t = NULL;
   int count = 0;
 
-  if(i > t || head == NULL)
+  if(i > t || head == NULL || (p >= i && p <= t+1))
     return head;
 
   while(1){
     if(count == i-1){
       p_i_minus_1 = aux;
-      printf("i-1: %lf\n", aux->data);
+      //printf("i-1: %lf\n", aux->data);
     }
     else if(count == i){
       p_i = aux;
-      printf("i: %lf\n", aux->data);
+      //printf("i: %lf\n", aux->data);
     }
     if(count == p-1){
       p_p_minus_1 = aux;
-      printf("p-1: %lf\n", aux->data);
+      //printf("p-1: %lf\n", aux->data);
     }
     else if(count == p){
       p_p = aux;
-      printf("p: %lf\n", aux->data);
+      //printf("p: %lf\n", aux->data);
     }
     if(count == t){
       p_t = aux;
-      printf("t: %lf\n", aux->data);
+      //printf("t: %lf\n", aux->data);
     }
     else if(count == t+1){
-    printf("nada");
       p_t_plus_1 = aux;
-      printf("t+1: %lf\n", aux->data);
+      //printf("t+1: %lf\n", aux->data);
     }
     count++;
     
-    aux = aux->next;
-    if(aux == NULL)
+    if(aux->next == NULL)
       break;
+    aux = aux->next;
   }
 
-  if((p_i_minus_1 == NULL && i > 0) || (p_i == NULL) || (p_p == NULL) || 
-  (p_p_minus_1 == NULL && p > 0) || (p_t == NULL) || count < p || count < t || count < i)
+  if((p_i_minus_1 == NULL && i > 0) || ((p_i == NULL) && (i > 0)) || (p_t == NULL) || count < t || count < i)
     return head;
+  
   if(i == 0){
     head = p_t_plus_1;
   }
-  else if(i-1 == 0){
-    head = p_t_plus_1;
-  }else{
+  else{
     p_i_minus_1->next = p_t_plus_1;
   }
-  p_p_minus_1->next = p_i;
+
+  if(p_p == NULL){
+    aux->next = p_i;
+    p_t->next = NULL;
+    return head;
+  }
+  else if(p == 0)
+    head = p_i;
+  else
+    p_p_minus_1->next = p_i;
+  
   p_t->next = p_p;
+  
   return head;
 }
 
@@ -245,20 +250,17 @@ node* removeNode(node* head, int p){
     aux = aux1;
     aux1 = aux1->next;
     if(aux1 == NULL)
-      return NULL;
+      return head;
     count++;
   }
 }
 
 void listPrint(node* aux){
-  while(aux){
-    printf("%.2lf", aux->data);
+  while(aux != NULL){
+    printf("%.2lf ", aux->data);
     aux = aux->next;
-    if(aux == NULL)
-      printf("\n");
-    else
-      printf(" ");
   }
+  printf("\n");
 }
 
 
@@ -266,15 +268,15 @@ node* insertNode(node* head, int p, double x){
   int count = 0;
 
   if(p < 0)
-    return NULL;
+    return head;
 
   node* new_node = (node*) malloc(sizeof(node));
   if(new_node == NULL){
-    return NULL;
+    return head;
   }
   new_node->data = x;
   
-  if(head == NULL && p >= 0){
+  if(head == NULL){
     head = new_node;
     new_node->next = NULL;
     return head;
@@ -289,15 +291,16 @@ node* insertNode(node* head, int p, double x){
   node* aux = head;
   while(1){
     count++;
+    //printf("teste: %.2lf\n", aux->data);
     if(count == p){
       new_node->next = aux->next;
       aux->next = new_node;
       return head;
     }
-    if((aux->next) == NULL)
-      break;
-    else
+    if(aux->next != NULL)
       aux = aux->next;
+    else
+      break;
   }
   /* Adiciona no final da lista */
   aux->next = new_node;
