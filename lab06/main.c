@@ -76,10 +76,6 @@ int main(void) {
       df_free(D);
       return 0;
     }
-
-    else if (strcmp(cmd,"teste") == 0){
-      print_debug(D);
-    }
     
     else {
       printf("Ups! invalid command: %s.\n",cmd);
